@@ -49,7 +49,7 @@ function TDD() {
 
 function maxFactor(x) { return Math.round(x / 2); }
 
-function anyCommonFactor(x, y) {
+function anyCommonFactor(x, y, factors) {
     if (x < y) throw "x should be bigger than y to work";
     if (x % y === 0) {
         inspect(`common factor of ${x} and ${y} is ${y}`);
@@ -60,8 +60,8 @@ function anyCommonFactor(x, y) {
         return false;
     }
     let maxCommonFactor = maxFactor(y);
-    for (let factor = 2; factor <= maxCommonFactor; factor++) {
-        if (x % factor === 0 && y % factor === 0) {
+    for (const factor of factors) {
+        if (y % factor  === 0) {
             inspect(`common factor of ${x} and ${y} is ${factor}`);
             return true;
         }
@@ -74,24 +74,20 @@ function totient (x) {
     const initialPrimes = 1;
     let primes = initialPrimes; // case 1
     let maxSelfFactor = maxFactor(x);
-    for (let i = 2; i <= maxSelfFactor; i ++) {
-        let result = anyCommonFactor(x, i);
+    let factors = [];
+    for (let i = 2; i < x; i ++) {
+        let result = anyCommonFactor(x, i, factors);
+        if (result) {
+            factors.push(i);
+        }
         inspect("anyCommonFactor", x, i, result);
         if (!result) {
             ++primes;
             inspect("++", primes);
         }
-    }
-    if (primes === maxSelfFactor) { // every number below is primes to him
-        inspect(x, "is prime!", initialPrimes, primes, maxSelfFactor);
-        primesNumbers.add(x);
-    }
-    for (let i = maxSelfFactor + 1; i < x; i++) {
-        let result = anyCommonFactor(x, i);
-        inspect("anyCommonFactor", x, i, result);
-        if (!result) {
-            ++primes;
-            inspect("++", primes);
+        if (i === maxSelfFactor && primes === maxSelfFactor) { // every number below is primes to him
+            inspect(x, "is prime!", initialPrimes, primes, maxSelfFactor);
+            primesNumbers.add(x);
         }
     }
     return primes;
@@ -115,5 +111,6 @@ function maxTotientRatioUnder (n) {
 }
 
 TDD();
+// debugging = true;
 console.log(maxTotientRatioUnder(10));
 console.log(maxTotientRatioUnder(1000000));

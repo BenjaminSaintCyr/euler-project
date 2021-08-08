@@ -70,7 +70,30 @@ function anyCommonFactor(x, y, factors) {
     return false;
 }
 
-function totient (x) {
+// function totient (x) {
+//     const initialPrimes = 1;
+//     let primes = initialPrimes; // case 1
+//     let maxSelfFactor = maxFactor(x);
+//     let factors = [];
+//     for (let i = 2; i < x; i ++) {
+//         let result = anyCommonFactor(x, i, factors);
+//         if (result) {
+//             factors.push(i);
+//         }
+//         inspect("anyCommonFactor", x, i, result);
+//         if (!result) {
+//             ++primes;
+//             inspect("++", primes);
+//         }
+//         if (i === maxSelfFactor && primes === maxSelfFactor) { // every number below is primes to him
+//             inspect(x, "is prime!", initialPrimes, primes, maxSelfFactor);
+//             primesNumbers.add(x);
+//         }
+//     }
+//     return primes;
+// }
+
+function rangeTotient (x) {
     const initialPrimes = 1;
     let primes = initialPrimes; // case 1
     let maxSelfFactor = maxFactor(x);
@@ -94,7 +117,7 @@ function totient (x) {
 }
 
 function totientRation (x) {
-    return x / totient(x);
+    return x / rangeTotient(x);
 }
 
 function maxTotientRatioUnder (n) {

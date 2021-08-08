@@ -4,7 +4,7 @@ open System
 //                   map reduce version         //
 ////////////////////////////////////////////////////////
      
-let inline isFactor x y = x % y = 0
+let inline isFactor x factor = x % factor = 0
 
 let isPrime n =
   let sqrt' = (float >> sqrt >> int) n // square root of integer
@@ -28,33 +28,30 @@ let allPrime n =
 
 let trace x = printf "%O\n" x; x
 
+let calculateRelativePrimes x factors relPrimes primeFactor =
+    let nbFactors =
+        let initialFactors = x / primeFactor
+        Set.filter (fun prime -> primeFactor > prime && isFactor initialFactors prime) factors // get factors of generated factors to remove duplicate factors
+        |> Set.fold (/) initialFactors // remove duplicate factors: ex 6 is both a factor of 2 and 3 for ex 12
+    let relPrimes' = relPrimes - nbFactors // exclue when prime * n = x
+    if relPrimes' <= 0 then printf "!relPrimes! from %i to %i with %i and %i\n" relPrimes relPrimes' x primeFactor
+    relPrimes'
+
+
 let totient primes x =
-    let mutable relPrimes = x - 1; // exclude itself
-    let factors = Set.filter (fun prime -> x > prime && isFactor x prime) primes
-    for primeNumber in factors do
-        let nbFactors = 
-            let initialFactors = x / primeNumber
-            Set.filter (fun prime -> primeNumber > prime && isFactor initialFactors prime) factors
-            |> Set.fold (/) initialFactors
-            |> (fun x -> if x > 1 then x - 1 else x)
+    if Set.contains x primes then x - 1
+    else
+        let factors = Set.filter (fun prime -> x > prime && isFactor x prime) primes
+        Set.fold (calculateRelativePrimes x factors) x factors
 
-        let relPrimes' = relPrimes - nbFactors // exclue when prime * n = x
-        if relPrimes' <= 0 then printf "!relPrimes! from %i to %i with %i and %i\n" relPrimes relPrimes' x primeNumber
-        relPrimes <- relPrimes'
-    relPrimes
-
-let totientRatio primes x = x / (totient primes x)
+let totientRatio primes (x: int): float = (float x) / (float (totient primes x))
 
 
 let maxTotientRatioUnder n =
-    let stopWatch = System.Diagnostics.Stopwatch.StartNew()
     let fastPrimes = Set.ofArray <| allPrime n
-    stopWatch.Stop()
-    printf "primes time %f\n" stopWatch.Elapsed.TotalMilliseconds
     [| 2 .. n |]
     |> Array.Parallel.map (fun x -> (x, (totientRatio fastPrimes x))) 
     |> Array.maxBy snd
-    |> fst
 
 
 [<EntryPoint>]
@@ -91,7 +88,9 @@ let main argv =
             result
         if areAllTestOk then
             let load = 1_000_000
-            printf "%i\n" <| benchmark maxTotientRatioUnder load
+            printf "n:%O phi:%O\n" <|| maxTotientRatioUnder load
+            // for x in maxTotientRatioUnder load do
+                // printf "n:%O phi:%O\n" <|| x
     with e ->
         printf "error with program %O %O \n"  e.Data e.Message
     printf "/////////////////////////////////////////////////////////////////////////////// End\n"

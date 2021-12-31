@@ -10,6 +10,7 @@ module Euler =
         let choosePrime x = if IsPrime x then Some x else None
         Array.Parallel.choose choosePrime [| 2 .. n |]
 
+
     let inline IsFactor x factor = x % factor = 0
 
     let rec gcd a b =
@@ -17,6 +18,8 @@ module Euler =
             abs a
         else
             gcd b (a % b)
+
+    let highestPrime n = AllPrime n |> Seq.max
 
     let totient n = seq { 1 .. n - 1 } |> Seq.filter (gcd n >> (=) 1) |> Seq.length
 
